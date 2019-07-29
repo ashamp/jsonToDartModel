@@ -282,7 +282,7 @@ $(function () {
           $('#dartCode').html(highlightDartCode.value);
 
         } else {
-          $('#formatedJson').text('json parse failed');
+          $('#formatedJson').text('parse failed, \nplease check your json string :)');
         }
       }
     }
