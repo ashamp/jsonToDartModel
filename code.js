@@ -282,7 +282,7 @@ $(function () {
           $('#dartCode').html(highlightDartCode.value);
 
         } else {
-          $('#formatedJson').text('json解析失败');
+          $('#formatedJson').text('json parse failed');
         }
       }
     }
