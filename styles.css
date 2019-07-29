@@ -1,0 +1,108 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    /* border: 1px solid blue; */
+}
+
+body,
+.mainContent {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 2px;
+    bottom: 2px;
+}
+
+.mainContent {
+    padding: 2px;
+    flex-direction: column;
+    flex: 1;
+}
+
+div {
+    display: flex;
+    overflow: auto;
+    padding: 2px;
+    border: 1px solid #999999;
+}
+
+.mainContainer{
+    flex: 1;
+    margin-top: 2px;
+}
+
+.leftContainer{
+    flex: 1;
+    flex-direction: column;
+}
+
+.rightContainer{
+    flex: 1;
+    margin-left: 2px;
+    flex-direction: column
+}
+
+.jsonContainer{
+    flex: 1
+}
+
+.origJsonContainer{
+    flex: 1
+}
+
+.formatedJsonContainer{
+    margin-left: 2px;
+    flex: 1
+}
+
+.inputsContainer{
+    margin-top: 2px;
+    flex-direction: column;
+}
+
+.inputTitle{
+    width: 80px;
+}
+
+.textInputContainer{
+    height: 40px;
+}
+
+.inputContainer{
+    flex: 1;
+    flex-direction: row;
+}
+
+input[type='text']{
+    flex: 1;
+}
+.objcHeader{
+    flex: 2;
+}
+.objcImpl{
+    flex: 3;
+    margin-top: 2px;
+}
+
+textarea{
+    resize: none;
+    flex: 1;
+}
+p{
+    align-self: center
+}
+
+#genBtn{
+    width: 60px;
+}
+
+.copyBtnContaner{
+    justify-content: center;
+    align-items: center;
+}
+
+.copyBtn{
+    width: 100%;
+    height: 40px;
+}
