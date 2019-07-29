@@ -199,7 +199,7 @@ $(function () {
             let className = `${prefix}${uppercaseFirst(baseClass)}`;
 
             lines.push(`class ${className} {`);
-            //lines.push(`/*\r\n ${JSON.stringify(jsonObj, null, 2)} \r\n*/\r\n`);
+            lines.push(`/*\r\n ${JSON.stringify(jsonObj, null, 2)} \r\n*/\r\n`);
 
             constructorLines.push(`  ${className}({\n`);
             fromJsonLines.push(`  ${className}.fromJson(Map<String, dynamic> json) {\n`);
@@ -223,15 +223,15 @@ $(function () {
                 }
                 else if (typeof element === 'number') {
                   propsLines.push(`  double ${legalKey};\n`);
-                  constructorLines.push(`    this.${legalKey},`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];`);
-                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};`);
+                  constructorLines.push(`    this.${legalKey},\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}].toDouble();\n`);
+                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'boolean') {
                   propsLines.push(`  bool ${legalKey};\n`);
-                  constructorLines.push(`    this.${legalKey},`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];`);
-                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};`);
+                  constructorLines.push(`    this.${legalKey},\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
+                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'object') {
 
