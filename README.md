@@ -8,3 +8,8 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 - onlint use, without plugin
 - surport multidimensional list
 - instant convert
+
+## FYI
+- `int` type will converted to `double`
+- object should have at least one property
+- only first object in array will be parsed
