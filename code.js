@@ -6,40 +6,31 @@ $(function () {
     let objcHerderStr = '';
 
     let jsonTestCase = `{
-"someStr": "Input Your JSON In This Textarea",
-"someNumber": 1.2,
-"someBool": false,
-"someObj": {
-"someObj": "xyz"
-},
-"someObjArray": [[
-{
-  "someObj": "xyz"
-},
-{
-  "someObj": "xyz"
-}
-]],
-"someStrArray": [
-"a",
-"b"
-],
-"someMultiDimensionalArray": [
-[
-  [
+  "anInt": 1,
+  "aDouble": 2.3,
+  "aString": "hello",
+  "aBool": false,
+  "anObj": {
+    "name": "x",
+    "age": 18.0
+  },
+  "anObjList": [
+    {
+      "name": "y"
+    }
+  ],
+  "aStrList": [
+    "something"
+  ],
+  "multidimensional": [
     [
-      {
-        "someObj": "xyz"
-      },
-      {
-        "someObj": "xyz"
-      }
+      [
+        {
+          "name": "y"
+        }
+      ]
     ]
   ]
-]
-],
-"id": "illegalName",
-"new": "illegalName"
 }`;
 
     function tryParseJSON(jsonString) {
