@@ -117,7 +117,12 @@ $(function () {
               innerClass = 'String';
             }
             else if (typeof inner === 'number') {
-              innerClass = 'double';
+              if (Number.isInteger(inner)) {
+                innerClass = 'int';
+
+              } else {
+                innerClass = 'double';
+              }
             }
             else if (typeof inner === 'boolean') {
               innerClass = 'bool';
@@ -149,7 +154,6 @@ $(function () {
               if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
                 fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
                 toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
-
               }
             }
 
@@ -161,8 +165,8 @@ $(function () {
               count--;
             }
 
-            fromJsonLines.unshift(`${makeBlank(1)}if (json[${jsonKey}] != null) {\n      var v = json[${jsonKey}];\n      var arr0 = ${genericStringGenerator(innerClass, total)}();`);
-            fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(1)}${legalKey} = arr0;\n    }\n`);
+            fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
+            fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(count)}${legalKey} = arr0;\n    }\n`);
             toJsonLines.unshift(`    if (${legalKey} != null) {\n      var v = ${legalKey};\n      var arr0 = List();`);
             toJsonLines.push(`      data[${jsonKey}] = arr0;\n    }\n`);
 
@@ -213,9 +217,13 @@ $(function () {
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'number') {
-                  propsLines.push(`  double ${legalKey};\n`);
+                  let type = 'double'
+                  if (Number.isInteger(element)) {
+                    type = 'int';
+                  }
+                  propsLines.push(`  ${type} ${legalKey};\n`);
                   constructorLines.push(`    this.${legalKey},\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}].toDouble();\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'boolean') {
