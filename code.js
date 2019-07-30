@@ -12,7 +12,7 @@ $(function () {
   "aBool": false,
   "anObj": {
     "name": "x",
-    "age": 18.0
+    "age": 18.1
   },
   "anObjList": [
     {
