@@ -152,7 +152,12 @@ $(function () {
               toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toJson());\n${makeBlank(count * 3)}});`);
             } else {
               if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
-                fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
+                if ((typeof inner === 'number') && !Number.isInteger(inner)) {
+                  fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toDouble());\n${makeBlank(count * 3)}});`);
+                }
+                else {
+                  fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
+                }
                 toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
               }
             }
@@ -218,12 +223,14 @@ $(function () {
                 }
                 else if (typeof element === 'number') {
                   let type = 'double'
+                  let toDouble = '.toDouble()'
                   if (Number.isInteger(element)) {
                     type = 'int';
+                    toDouble = '';
                   }
                   propsLines.push(`  ${type} ${legalKey};\n`);
                   constructorLines.push(`    this.${legalKey},\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toDouble};\n`);
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'boolean') {
