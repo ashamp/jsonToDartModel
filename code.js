@@ -214,7 +214,7 @@ $(function () {
             }
 
             lines.push(`class ${className} {`);
-            lines.push(`/*\r\n ${JSON.stringify(jsonObj, null, 2)} \r\n*/\r\n`);
+            lines.push(`/*\r\n${JSON.stringify(jsonObj, null, 2)} \r\n*/\r\n`);
 
             constructorLines.push(`  ${className}({\n`);
             fromJsonLines.push(`  ${className}.fromJson(Map<String, dynamic> json) {\n`);
