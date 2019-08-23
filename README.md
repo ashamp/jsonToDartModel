@@ -13,7 +13,6 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 - instant convert
 
 ## FYI
-- ~~`int` type will converted to `double`~~
 - object should have at least one property
 - only first object in array will be parsed
 
@@ -21,9 +20,6 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 1. input json string in left textinput
 2. input root class name in left bottom textinput
 3. copy code by button or mouse
-
-## Todo
-- [x] add option that convert snake case to camel case
 
 ## Example
 json string may looks like
@@ -43,7 +39,7 @@ named it `SomeRootEntity` and convert to dart
 ``` dart
   var obj = SomeRootEntity.fromJson(jsonDecode(json));
   String encodedJson = jsonEncode(obj.toJson());
-  print(encodedJson);//{"anInt":1.0,"aDouble":2.3,"aString":"hello","aBool":false,"anObj":{"name":"x","age":18.0}}
+  print(encodedJson);//{"anInt":1,"aDouble":2.3,"aString":"hello","aBool":false,"anObj":{"name":"x","age":18.0}}
 ```
 
 ![reademe](readme.png)
