@@ -54,6 +54,14 @@ $(function () {
         let jsonObj = tryParseJSON(jsonStr);
         if (jsonObj) {
 
+          //snake to camel
+          const snakeToCamel = (str) => str.replace(
+            /([-_][a-z])/g,
+            (group) => group.toUpperCase()
+              .replace('-', '')
+              .replace('_', '')
+          );
+
           //去除重复元素
           let removeSurplusElement = (obj) => {
             if (Array.isArray(obj)) {
@@ -196,7 +204,12 @@ $(function () {
             let fromJsonLines = [];
             let toJsonLines = [];
 
+            let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
+
             let className = `${prefix}${uppercaseFirst(baseClass)}`;
+            if (shouldConvertSnakeToCamel) {
+              className = snakeToCamel(className);
+            }
 
             lines.push(`class ${className} {`);
             lines.push(`/*\r\n ${JSON.stringify(jsonObj, null, 2)} \r\n*/\r\n`);
@@ -212,7 +225,11 @@ $(function () {
 
                 let legalKey = dartKeywordDefence(key);
 
-                const jsonKey = `jsonKey${className}${uppercaseFirst(key)}`;
+                if (shouldConvertSnakeToCamel) {
+                  legalKey = snakeToCamel(legalKey);
+                }
+
+                const jsonKey = `jsonKey${className}${uppercaseFirst(legalKey)}`;
                 jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
 
                 if (typeof element === 'string') {
@@ -242,6 +259,9 @@ $(function () {
                 else if (typeof element === 'object') {
 
                   let subClassName = `${className}${uppercaseFirst(key)}`;
+                  if (shouldConvertSnakeToCamel) {
+                    subClassName = snakeToCamel(subClassName);
+                  }
                   if (Array.isArray(element)) {
                     let { inner, innerClass, count } = getInnerObjInfo(element, subClassName);
                     let { fromJsonLinesJoined, toJsonLinesJoined } = getIterateLines(element, subClassName, key, legalKey, jsonKey);
@@ -256,7 +276,7 @@ $(function () {
                   }
                   else {
                     lines.unshift(objToDart(element, className, key));
-                    propsLines.push(`  ${subClassName} ${legalKey};`);
+                    propsLines.push(`  ${subClassName} ${legalKey};\n`);
                     constructorLines.push(`    this.${legalKey},\n`);
                     fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                     toJsonLines.push(`    if (${legalKey} != null) {\n      data['${key}'] = ${legalKey}.toJson();\n    }\n`);
@@ -318,6 +338,24 @@ $(function () {
 
     textFieldBinding('origJsonTextarea', jsonTestCase);
     textFieldBinding('classNameTextField', 'SomeRootEntity');
+
+    function checkBoxBinding(checkBoxID, checked) {
+      let defaultValue = checked ? '1' : '0';
+      let selector = '#' + checkBoxID;
+      let strFromCookie = $.cookie(checkBoxID);
+      if (strFromCookie === undefined || strFromCookie.length === 0) {
+        $.cookie(checkBoxID, defaultValue);
+      }
+      checked = $.cookie(checkBoxID) === '1';
+      $(selector).prop('checked', checked);
+      $(selector).on('change', function (e) {
+        let checked = $(this).prop('checked') ? '1' : '0';
+        $.cookie(checkBoxID, checked);
+        generate();
+      });
+    }
+
+    checkBoxBinding('camelCheckBox', true);
 
     generate();
 

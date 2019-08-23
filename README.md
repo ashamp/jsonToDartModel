@@ -23,7 +23,7 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 3. copy code by button or mouse
 
 ## Todo
-- [ ] add option that convert snake case to camel case
+- [x] add option that convert snake case to camel case
 
 ## Example
 json string may looks like
