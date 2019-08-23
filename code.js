@@ -204,6 +204,8 @@ $(function () {
             let fromJsonLines = [];
             let toJsonLines = [];
 
+            let shouldUsingJsonKey = $('#usingJsonKeyCheckBox').prop('checked');
+            let isJsonKeyPrivate = $('#jsonKeyPrivateCheckBox').prop('checked');
             let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
 
             let className = `${prefix}${uppercaseFirst(baseClass)}`;
@@ -229,7 +231,10 @@ $(function () {
                   legalKey = snakeToCamel(legalKey);
                 }
 
-                const jsonKey = `jsonKey${className}${uppercaseFirst(legalKey)}`;
+                let jsonKey = `"${key}"`;
+                if (shouldUsingJsonKey) {
+                  jsonKey = `${isJsonKeyPrivate ? '_' : ''}jsonKey${className}${uppercaseFirst(legalKey)}`;
+                }
                 jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
 
                 if (typeof element === 'string') {
@@ -279,12 +284,14 @@ $(function () {
                     propsLines.push(`  ${subClassName} ${legalKey};\n`);
                     constructorLines.push(`    this.${legalKey},\n`);
                     fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
-                    toJsonLines.push(`    if (${legalKey} != null) {\n      data['${key}'] = ${legalKey}.toJson();\n    }\n`);
+                    toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${legalKey}.toJson();\n    }\n`);
                   }
                 }
               }
             }
-            lines.unshift(jsonKeysLines.join('\n'));
+            if (shouldUsingJsonKey) {
+              lines.unshift(jsonKeysLines.join('\n'));
+            }
 
             constructorLines.push(`  });`);
             fromJsonLines.push(`  }`);
@@ -348,14 +355,21 @@ $(function () {
       }
       checked = $.cookie(checkBoxID) === '1';
       $(selector).prop('checked', checked);
-      $(selector).on('change', function (e) {
+      $(selector).on('change', function () {
         let checked = $(this).prop('checked') ? '1' : '0';
         $.cookie(checkBoxID, checked);
         generate();
       });
     }
 
+    checkBoxBinding('jsonKeyPrivateCheckBox', true);
+    checkBoxBinding('usingJsonKeyCheckBox', false);
     checkBoxBinding('camelCheckBox', true);
+
+    $('#usingJsonKeyCheckBox').on('change', function () {
+      $('#jsonKeyPrivateCheckBox').prop('disabled', !(this.checked));
+    });
+    $('#jsonKeyPrivateCheckBox').prop('disabled', !($('#usingJsonKeyCheckBox').prop('checked')));
 
     generate();
 
