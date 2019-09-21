@@ -45,6 +45,8 @@ $(function () {
     }
 
     function generate() {
+      let forceStringCheckBox = $('#forceStringCheckBox').prop('checked');
+      console.log(forceStringCheckBox);
 
       let jsonStr = $('#origJsonTextarea').val();
 
@@ -84,7 +86,7 @@ $(function () {
           let dartKeywordDefence = key => {
             if (typeof key === 'string') {
               //https://dart.dev/guides/language/language-tour
-              let reservedKeywords = ["abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
+              let reservedKeywords = ["double","int","String","bool","List","abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
               if (reservedKeywords.includes(key)) {
                 return `the${uppercaseFirst(key)}`;
               }
@@ -134,6 +136,9 @@ $(function () {
             }
             else if (typeof inner === 'boolean') {
               innerClass = 'bool';
+            }
+            if (forceStringCheckBox) {
+              innerClass = 'String';
             }
             return { inner, innerClass, count };
           };
@@ -236,28 +241,30 @@ $(function () {
                   jsonKey = `${isJsonKeyPrivate ? '_' : ''}jsonKey${className}${uppercaseFirst(legalKey)}`;
                 }
                 jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
+                constructorLines.push(`    this.${legalKey},\n`);
 
                 if (typeof element === 'string') {
                   propsLines.push(`  String ${legalKey};\n`);
-                  constructorLines.push(`    this.${legalKey},\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${forceStringCheckBox?'.toString()':''};\n`);
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'number') {
                   let type = 'double'
                   let toDouble = '.toDouble()'
-                  if (Number.isInteger(element)) {
+                  if (forceStringCheckBox) {
+                    type = 'String';
+                    toDouble = '.toString()';
+                  }
+                  else if (Number.isInteger(element)) {
                     type = 'int';
                     toDouble = '';
                   }
                   propsLines.push(`  ${type} ${legalKey};\n`);
-                  constructorLines.push(`    this.${legalKey},\n`);
                   fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toDouble};\n`);
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
                 else if (typeof element === 'boolean') {
                   propsLines.push(`  bool ${legalKey};\n`);
-                  constructorLines.push(`    this.${legalKey},\n`);
                   fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
                   toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
@@ -272,7 +279,6 @@ $(function () {
                     let { fromJsonLinesJoined, toJsonLinesJoined } = getIterateLines(element, subClassName, key, legalKey, jsonKey);
                     let genericString = genericStringGenerator(innerClass, count);
                     propsLines.push(`  ${genericString} ${legalKey};\n`);
-                    constructorLines.push(`    this.${legalKey},\n`);
                     fromJsonLines.push(fromJsonLinesJoined);
                     toJsonLines.push(toJsonLinesJoined);
                     if (typeof inner === 'object') {
@@ -282,7 +288,6 @@ $(function () {
                   else {
                     lines.unshift(objToDart(element, className, key));
                     propsLines.push(`  ${subClassName} ${legalKey};\n`);
-                    constructorLines.push(`    this.${legalKey},\n`);
                     fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                     toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${legalKey}.toJson();\n    }\n`);
                   }
@@ -365,6 +370,7 @@ $(function () {
     checkBoxBinding('jsonKeyPrivateCheckBox', true);
     checkBoxBinding('usingJsonKeyCheckBox', false);
     checkBoxBinding('camelCheckBox', true);
+    checkBoxBinding('forceStringCheckBox', false);
 
     $('#usingJsonKeyCheckBox').on('change', function () {
       $('#jsonKeyPrivateCheckBox').prop('disabled', !(this.checked));
