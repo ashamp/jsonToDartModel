@@ -6,6 +6,7 @@ $(function () {
     let objcHerderStr = '';
 
     let jsonTestCase = `{
+  "some_snake_case_prop":"",
   "anInt": 1,
   "aDouble": 2.3,
   "aString": "hello",
