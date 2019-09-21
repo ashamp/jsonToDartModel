@@ -46,7 +46,6 @@ $(function () {
 
     function generate() {
       let forceStringCheckBox = $('#forceStringCheckBox').prop('checked');
-      console.log(forceStringCheckBox);
 
       let jsonStr = $('#origJsonTextarea').val();
 
@@ -86,7 +85,7 @@ $(function () {
           let dartKeywordDefence = key => {
             if (typeof key === 'string') {
               //https://dart.dev/guides/language/language-tour
-              let reservedKeywords = ["double","int","String","bool","List","abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
+              let reservedKeywords = ["double", "int", "String", "bool", "List", "abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
               if (reservedKeywords.includes(key)) {
                 return `the${uppercaseFirst(key)}`;
               }
@@ -123,22 +122,27 @@ $(function () {
             let inner = getInnerObj(arr);
 
             let innerClass = className;
-            if (typeof inner === 'string') {
-              innerClass = 'String';
-            }
-            else if (typeof inner === 'number') {
-              if (Number.isInteger(inner)) {
-                innerClass = 'int';
-
-              } else {
-                innerClass = 'double';
-              }
+            if (typeof inner === 'object') {
             }
             else if (typeof inner === 'boolean') {
+              //we don't handle boolean
               innerClass = 'bool';
             }
-            if (forceStringCheckBox) {
-              innerClass = 'String';
+            else {
+              if (typeof inner === 'string') {
+                innerClass = 'String';
+              }
+              if (typeof inner === 'number') {
+                if (Number.isInteger(inner)) {
+                  innerClass = 'int';
+  
+                } else {
+                  innerClass = 'double';
+                }
+              }
+              if (forceStringCheckBox) {
+                innerClass = 'String';
+              }
             }
             return { inner, innerClass, count };
           };
@@ -164,13 +168,27 @@ $(function () {
               fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${className}.fromJson(v));\n${makeBlank(count * 3)}});`);
               toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toJson());\n${makeBlank(count * 3)}});`);
             } else {
+              let toType = '';
+              if (typeof inner === 'boolean') {
+                //we don't handle boolean
+              }
+              else {
+                if (forceStringCheckBox) {
+                  inner = inner.toString();
+                }
+                if (typeof inner === 'string') {
+                  toType = '.toString()';
+                }
+                if (typeof inner === 'number') {
+                  if (Number.isInteger(inner)) {
+                    toType = '.toInt()';
+                  } else {
+                    toType = '.toDouble()';
+                  }
+                }
+              }
               if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
-                if ((typeof inner === 'number') && !Number.isInteger(inner)) {
-                  fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toDouble());\n${makeBlank(count * 3)}});`);
-                }
-                else {
-                  fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
-                }
+                fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v${toType});\n${makeBlank(count * 3)}});`);
                 toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
               }
             }
@@ -242,33 +260,7 @@ $(function () {
                 }
                 jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
                 constructorLines.push(`    this.${legalKey},\n`);
-
-                if (typeof element === 'string') {
-                  propsLines.push(`  String ${legalKey};\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${forceStringCheckBox?'.toString()':''};\n`);
-                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
-                }
-                else if (typeof element === 'number') {
-                  let type = 'double'
-                  let toDouble = '.toDouble()'
-                  if (forceStringCheckBox) {
-                    type = 'String';
-                    toDouble = '.toString()';
-                  }
-                  else if (Number.isInteger(element)) {
-                    type = 'int';
-                    toDouble = '';
-                  }
-                  propsLines.push(`  ${type} ${legalKey};\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toDouble};\n`);
-                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
-                }
-                else if (typeof element === 'boolean') {
-                  propsLines.push(`  bool ${legalKey};\n`);
-                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}];\n`);
-                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
-                }
-                else if (typeof element === 'object') {
+                if (typeof element === 'object') {
 
                   let subClassName = `${className}${uppercaseFirst(key)}`;
                   if (shouldConvertSnakeToCamel) {
@@ -291,6 +283,35 @@ $(function () {
                     fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                     toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${legalKey}.toJson();\n    }\n`);
                   }
+                }
+                else {
+                  let toType = '';
+                  let type = '';
+                  if (typeof element === 'boolean') {
+                    //bool is special
+                    type = 'bool';
+                  }
+                  else {
+                    if (forceStringCheckBox) {
+                      element = element.toString();
+                    }
+                    if (typeof element === 'string') {
+                      toType = '.toString()';
+                      type = 'String';
+                    }
+                    if (typeof element === 'number') {
+                      if (Number.isInteger(element)) {
+                        toType = '.toInt()';
+                        type = 'int';
+                      } else {
+                        toType = '.toDouble()';
+                        type = 'double';
+                      }
+                    }
+                  }
+                  propsLines.push(`  ${type} ${legalKey};\n`);
+                  fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toType};\n`);
+                  toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
                 }
               }
             }
