@@ -20,7 +20,7 @@ body,
     flex: 1;
 }
 
-div {
+.divContainer {
     display: flex;
     overflow: auto;
     padding: 2px;
@@ -53,11 +53,6 @@ div {
 }
 
 .origJsonContainer{
-    flex: 1
-}
-
-.formatedJsonContainer{
-    margin-left: 2px;
     flex: 1
 }
 
