@@ -9,14 +9,15 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 - surport multidimensional list
 - surport complex json
 - surpot convert all props to String type
+- empty props warning
 - single file
 - dart keyword protected
 - instant convert
 
 ## FYI
 - object should have at least one property
-- only first object in array will be parsed
-- when select `Force String Type` , the `bool` type will be ignored
+- only first object in array will be parsed, empty array will cause error
+- when select `Force String Type` , the `bool` type will not convert
 
 ## Usage
 1. input json string in left textinput
