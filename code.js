@@ -297,15 +297,15 @@ $(function () {
                       element = element.toString();
                     }
                     if (typeof element === 'string') {
-                      toType = '.toString()';
+                      toType = '?.toString()';
                       type = 'String';
                     }
                     if (typeof element === 'number') {
                       if (Number.isInteger(element)) {
-                        toType = '.toInt()';
+                        toType = '?.toInt()';
                         type = 'int';
                       } else {
-                        toType = '.toDouble()';
+                        toType = '?.toDouble()';
                         type = 'double';
                       }
                     }
