@@ -300,7 +300,7 @@ $(function () {
                       toType = '?.toString()';
                       type = 'String';
                     }
-                    if (typeof element === 'number') {
+                    else if (typeof element === 'number') {
                       if (Number.isInteger(element)) {
                         toType = '?.toInt()';
                         type = 'int';
