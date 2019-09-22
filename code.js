@@ -123,7 +123,8 @@ $(function () {
             }
 
             let inner = getInnerObj(arr);
-
+            console.log('aaaaaaaaaaaaaaaaaaaa');
+            console.log(inner);
             let innerClass = className;
             if (typeof inner === 'object') {
             }
@@ -161,6 +162,11 @@ $(function () {
             };
 
             let { inner, innerClass, count } = getInnerObjInfo(arr, className);
+            if (inner === undefined || inner === null) {
+              showInfo(`WARNING : the property named &nbsp <b>'${key}'</b> &nbsp is an EMPTY array ! parse process is failed !`);
+              $('#formatedJson').text('parse failed, \nplease check your json string :)');
+              return { fromJsonLinesJoined: "    >>>>>>error<<<<<<\n", toJsonLinesJoined: "    >>>>>>error<<<<<<\n" };
+            }
             let total = count;
             let fromJsonLines = [];
             let toJsonLines = [];
@@ -363,10 +369,10 @@ $(function () {
       }
     }
 
-    function showInfo(info){
+    function showInfo(info) {
       $('.info').show().html(info);
     }
-    function hideInfo(){
+    function hideInfo() {
       $('.info').hide();
     }
 
