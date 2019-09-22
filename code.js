@@ -123,8 +123,6 @@ $(function () {
             }
 
             let inner = getInnerObj(arr);
-            console.log('aaaaaaaaaaaaaaaaaaaa');
-            console.log(inner);
             let innerClass = className;
             if (typeof inner === 'object') {
             }
