@@ -11,6 +11,7 @@ $(function () {
   "aDouble": 2.3,
   "aString": "hello",
   "aBool": false,
+  "aNull":null,
   "anObj": {
     "name": "x",
     "age": 18.1
@@ -46,6 +47,7 @@ $(function () {
     }
 
     function generate() {
+      hideInfo();
       let forceStringCheckBox = $('#forceStringCheckBox').prop('checked');
 
       let jsonStr = $('#origJsonTextarea').val();
@@ -86,7 +88,7 @@ $(function () {
           let dartKeywordDefence = key => {
             if (typeof key === 'string') {
               //https://dart.dev/guides/language/language-tour
-              let reservedKeywords = ["num","double", "int", "String", "bool", "List", "abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
+              let reservedKeywords = ["num", "double", "int", "String", "bool", "List", "abstract", "dynamic", "implements", "show", "as", "else", "import", "static", "assert", "enum", "in", "super", "async", "export", "interface", "switch", "await", "extends", "is", "sync", "break", "external", "library", "this", "case", "factory", "mixin", "throw", "catch", "false", "new", "true", "class", "final", "null", "try", "const", "finally", "on", "typedef", "continue", "for", "operator", "var", "covariant", "Function", "part", "void", "default", "get", "rethrow", "while", "deferred", "hide", "return", "with", "do", "if", "set", "yield"];
               if (reservedKeywords.includes(key)) {
                 return `the${uppercaseFirst(key)}`;
               }
@@ -136,7 +138,7 @@ $(function () {
               if (typeof inner === 'number') {
                 if (Number.isInteger(inner)) {
                   innerClass = 'int';
-  
+
                 } else {
                   innerClass = 'double';
                 }
@@ -261,6 +263,11 @@ $(function () {
                 }
                 jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
                 constructorLines.push(`    this.${legalKey},\n`);
+                if (element === null) {
+                  //!显示错误信息
+                  showInfo(`WARNING : the Property named '${key}' is null,which will be treated as String type`);
+                  element = '';
+                }
                 if (typeof element === 'object') {
 
                   let subClassName = `${className}${uppercaseFirst(key)}`;
@@ -354,6 +361,13 @@ $(function () {
           $('#formatedJson').text('parse failed, \nplease check your json string :)');
         }
       }
+    }
+
+    function showInfo(info){
+      $('.info').show().html(info);
+    }
+    function hideInfo(){
+      $('.info').hide();
     }
 
     function textFieldBinding(tfID, defaultValue) {
