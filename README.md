@@ -8,7 +8,7 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 - online use, without plugin
 - surport multidimensional list
 - surport complex json
-- surpot convert all props to String type
+- surport convert all props to String type
 - empty props warning
 - single file
 - dart keyword protected
