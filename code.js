@@ -3,6 +3,12 @@ $(function () {
   //初始化
   (function init() {
 
+    function showInfo(info) {
+      $('.info').show().html(info);
+    }
+    function hideInfo() {
+      $('.info').hide();
+    }
     const jsonEditorCachekey = 'jsonEditor';
 
     let resultDartCode = '';
@@ -45,7 +51,12 @@ $(function () {
         generate();
       },
     }
-    const editor = new JSONEditor(container, options)
+    let editor;
+    try {
+      editor = new JSONEditor(container, options)
+    } catch {
+      showInfo('Load JSONEditor faild, please try reload');
+    }
 
     function tryParseJSON(jsonString) {
       try {
@@ -368,13 +379,6 @@ $(function () {
       $('#dartCode').html(highlightDartCode.value);
     }
 
-    function showInfo(info) {
-      $('.info').show().html(info);
-    }
-    function hideInfo() {
-      $('.info').hide();
-    }
-
     function textFieldBinding(tfID, defaultValue) {
       let selector = '#' + tfID;
       let strFromCookie = $.cookie(tfID);
@@ -394,7 +398,7 @@ $(function () {
 
     function jsonEditorBinding(tfID, defaultValue) {
       let str = $.cookie(jsonEditorCachekey);
-      if (str.length) {
+      if (str && str.length) {
         editor.setText(str);
       } else {
         editor.set(jsonTestCase);
