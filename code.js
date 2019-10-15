@@ -283,6 +283,11 @@ $(function () {
               legalKey = snakeToCamel(legalKey);
             }
 
+            let thisData = '';
+            if (key == 'data') {
+              thisData = 'this.';
+            }
+
             let jsonKey = `"${key}"`;
             if (shouldUsingJsonKey) {
               jsonKey = `${isJsonKeyPrivate ? '_' : ''}jsonKey${className}${uppercaseFirst(legalKey)}`;
@@ -312,10 +317,11 @@ $(function () {
                 }
               }
               else {
+
                 lines.unshift(objToDart(element, className, key));
                 propsLines.push(`  ${subClassName} ${legalKey};\n`);
                 fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
-                toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${legalKey}.toJson();\n    }\n`);
+                toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}.toJson();\n    }\n`);
               }
             }
             else {
@@ -345,7 +351,7 @@ $(function () {
               }
               propsLines.push(`  ${type} ${legalKey};\n`);
               fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toType};\n`);
-              toJsonLines.push(`    data[${jsonKey}] = ${legalKey};\n`);
+              toJsonLines.push(`    data[${jsonKey}] = ${thisData}${legalKey};\n`);
             }
           }
         }
