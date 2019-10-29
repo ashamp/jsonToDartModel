@@ -83,7 +83,7 @@ $(function () {
 
       //snake to camel
       const snakeToCamel = (str) => str.replace(
-        /([-_][a-z])/g,
+        /([-_][a-zA-Z])/g,
         (group) => group.toUpperCase()
           .replace('-', '')
           .replace('_', '')
