@@ -383,6 +383,7 @@ $(function () {
       resultDartCode = dartCode;
       let highlightDartCode = hljs.highlight('dart', dartCode);
       $('#dartCode').html(highlightDartCode.value);
+      $('#fileNameTextField').val(rootClass.length > 0 ? rootClass.replace(/([A-Z])/g, "_$1").toLowerCase().substr(1) + '.dart' : '');
     }
 
     function textFieldBinding(tfID, defaultValue) {
