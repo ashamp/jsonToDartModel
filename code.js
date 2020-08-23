@@ -174,6 +174,10 @@ $(function () {
       //!获取数组循环语句
       let getIterateLines = (arr, className, key, legalKey, jsonKey) => {
 
+        if (legalKey == 'data') {
+          legalKey = 'this.data';
+        }
+
         function makeBlank(count) {
           let str = '';
           for (let index = 0; index < count + 1; index++) {
