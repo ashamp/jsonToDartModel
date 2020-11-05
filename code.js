@@ -201,7 +201,7 @@ $(function () {
           fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${className}.fromJson(v));\n${makeBlank(count * 3)}});`);
           toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toJson());\n${makeBlank(count * 3)}});`);
         } else {
-          let toType = '';
+          let toType = 'v';
           if (typeof inner === 'boolean') {
             //we don't handle boolean
           }
@@ -210,18 +210,18 @@ $(function () {
               inner = inner.toString();
             }
             if (typeof inner === 'string') {
-              toType = '.toString()';
+              toType = 'v.toString()';
             }
             if (typeof inner === 'number') {
               if (Number.isInteger(inner)) {
-                toType = '.toInt()';
+                toType = 'int.tryParse(v.toString() ?? \'\')';
               } else {
-                toType = '.toDouble()';
+                toType = 'double.tryParse(v.toString() ?? \'\')';
               }
             }
           }
           if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
-            fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v${toType});\n${makeBlank(count * 3)}});`);
+            fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${toType});\n${makeBlank(count * 3)}});`);
             toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
           }
         }
@@ -329,7 +329,7 @@ $(function () {
               }
             }
             else {
-              let toType = '';
+              let toType = `json[${jsonKey}]`;
               let type = '';
               if (typeof element === 'boolean') {
                 //bool is special
@@ -340,21 +340,21 @@ $(function () {
                   element = element.toString();
                 }
                 if (typeof element === 'string') {
-                  toType = '?.toString()';
+                  toType = `json[${jsonKey}]?.toString()`;
                   type = 'String';
                 }
                 else if (typeof element === 'number') {
                   if (Number.isInteger(element)) {
-                    toType = '?.toInt()';
+                    toType = `  int.tryParse(json[${jsonKey}]?.toString() ?? '')`;
                     type = 'int';
                   } else {
-                    toType = '?.toDouble()';
+                    toType = `  double.tryParse(json[${jsonKey}]?.toString() ?? '')`;
                     type = 'double';
                   }
                 }
               }
               propsLines.push(`  ${type} ${legalKey};\n`);
-              fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toType};\n`);
+              fromJsonLines.push(`    ${legalKey} = ${toType};\n`);
               toJsonLines.push(`    data[${jsonKey}] = ${thisData}${legalKey};\n`);
             }
           }
