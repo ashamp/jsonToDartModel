@@ -80,6 +80,7 @@ $(function () {
       }
 
       let forceStringCheckBox = $('#forceStringCheckBox').prop('checked');
+      let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
 
       //snake to camel
       const snakeToCamel = (str) => str.replace(
@@ -214,9 +215,9 @@ $(function () {
             }
             if (typeof inner === 'number') {
               if (Number.isInteger(inner)) {
-                toType = 'int.tryParse(v.toString() ?? \'\')';
+                toType = shouldEnhanceFaultTolerance ? 'int.tryParse(v.toString() ?? \'\')' : 'v.toInt()';
               } else {
-                toType = 'double.tryParse(v.toString() ?? \'\')';
+                toType = shouldEnhanceFaultTolerance ? 'double.tryParse(v.toString() ?? \'\')' : 'v.toDouble()';
               }
             }
           }
@@ -234,7 +235,8 @@ $(function () {
           count--;
         }
 
-        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null && (json[${jsonKey}] is List)) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
+        let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is List)` : '';
+        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null${typeCheck}) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
         fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(count)}${legalKey} = arr0;\n    }\n`);
         toJsonLines.unshift(`    if (${legalKey} != null) {\n      var v = ${legalKey};\n      var arr0 = List();`);
         toJsonLines.push(`      data[${jsonKey}] = arr0;\n    }\n`);
@@ -263,6 +265,7 @@ $(function () {
         let shouldUsingJsonKey = $('#usingJsonKeyCheckBox').prop('checked');
         let isJsonKeyPrivate = $('#jsonKeyPrivateCheckBox').prop('checked');
         let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
+        let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
 
         let className = `${prefix}${uppercaseFirst(baseClass)}`;
         if (shouldConvertSnakeToCamel) {
@@ -324,7 +327,8 @@ $(function () {
 
                 lines.unshift(objToDart(element, className, key));
                 propsLines.push(`  ${subClassName} ${legalKey};\n`);
-                fromJsonLines.push(`    ${legalKey} = (json[${jsonKey}] != null && (json[${jsonKey}] is Map)) ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
+                let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is Map)` : '';
+                fromJsonLines.push(`    ${legalKey} = (json[${jsonKey}] != null${typeCheck}) ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                 toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}.toJson();\n    }\n`);
               }
             }
@@ -345,10 +349,10 @@ $(function () {
                 }
                 else if (typeof element === 'number') {
                   if (Number.isInteger(element)) {
-                    toType = `  int.tryParse(json[${jsonKey}]?.toString() ?? '')`;
+                    toType = shouldEnhanceFaultTolerance ? `int.tryParse(json[${jsonKey}]?.toString() ?? '')` : `json[${jsonKey}]?.toInt()`;
                     type = 'int';
                   } else {
-                    toType = `  double.tryParse(json[${jsonKey}]?.toString() ?? '')`;
+                    toType = shouldEnhanceFaultTolerance ? `double.tryParse(json[${jsonKey}]?.toString() ?? '')` : `json[${jsonKey}]?.toDouble()`;
                     type = 'double';
                   }
                 }
@@ -436,6 +440,7 @@ $(function () {
     checkBoxBinding('jsonKeyPrivateCheckBox', true);
     checkBoxBinding('usingJsonKeyCheckBox', false);
     checkBoxBinding('camelCheckBox', true);
+    checkBoxBinding('faultToleranceCheckBox', false);
     checkBoxBinding('forceStringCheckBox', false);
 
     $('#usingJsonKeyCheckBox').on('change', function () {
