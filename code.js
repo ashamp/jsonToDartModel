@@ -234,7 +234,7 @@ $(function () {
           count--;
         }
 
-        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
+        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null && (json[${jsonKey}] is List)) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
         fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(count)}${legalKey} = arr0;\n    }\n`);
         toJsonLines.unshift(`    if (${legalKey} != null) {\n      var v = ${legalKey};\n      var arr0 = List();`);
         toJsonLines.push(`      data[${jsonKey}] = arr0;\n    }\n`);
@@ -324,7 +324,7 @@ $(function () {
 
                 lines.unshift(objToDart(element, className, key));
                 propsLines.push(`  ${subClassName} ${legalKey};\n`);
-                fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
+                fromJsonLines.push(`    ${legalKey} = (json[${jsonKey}] != null && (json[${jsonKey}] is Map)) ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                 toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}.toJson();\n    }\n`);
               }
             }
