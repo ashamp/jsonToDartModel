@@ -80,6 +80,7 @@ $(function () {
       }
 
       let forceStringCheckBox = $('#forceStringCheckBox').prop('checked');
+      let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
 
       //snake to camel
       const snakeToCamel = (str) => str.replace(
@@ -201,7 +202,7 @@ $(function () {
           fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${className}.fromJson(v));\n${makeBlank(count * 3)}});`);
           toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toJson());\n${makeBlank(count * 3)}});`);
         } else {
-          let toType = '';
+          let toType = 'v';
           if (typeof inner === 'boolean') {
             //we don't handle boolean
           }
@@ -210,18 +211,18 @@ $(function () {
               inner = inner.toString();
             }
             if (typeof inner === 'string') {
-              toType = '.toString()';
+              toType = 'v.toString()';
             }
             if (typeof inner === 'number') {
               if (Number.isInteger(inner)) {
-                toType = '.toInt()';
+                toType = shouldEnhanceFaultTolerance ? 'int.tryParse(v.toString() ?? \'\')' : 'v.toInt()';
               } else {
-                toType = '.toDouble()';
+                toType = shouldEnhanceFaultTolerance ? 'double.tryParse(v.toString() ?? \'\')' : 'v.toDouble()';
               }
             }
           }
           if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
-            fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v${toType});\n${makeBlank(count * 3)}});`);
+            fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${toType});\n${makeBlank(count * 3)}});`);
             toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
           }
         }
@@ -234,7 +235,8 @@ $(function () {
           count--;
         }
 
-        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
+        let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is List)` : '';
+        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null${typeCheck}) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
         fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(count)}${legalKey} = arr0;\n    }\n`);
         toJsonLines.unshift(`    if (${legalKey} != null) {\n      var v = ${legalKey};\n      var arr0 = List();`);
         toJsonLines.push(`      data[${jsonKey}] = arr0;\n    }\n`);
@@ -263,6 +265,7 @@ $(function () {
         let shouldUsingJsonKey = $('#usingJsonKeyCheckBox').prop('checked');
         let isJsonKeyPrivate = $('#jsonKeyPrivateCheckBox').prop('checked');
         let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
+        let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
 
         let className = `${prefix}${uppercaseFirst(baseClass)}`;
         if (shouldConvertSnakeToCamel) {
@@ -324,12 +327,13 @@ $(function () {
 
                 lines.unshift(objToDart(element, className, key));
                 propsLines.push(`  ${subClassName} ${legalKey};\n`);
-                fromJsonLines.push(`    ${legalKey} = json[${jsonKey}] != null ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
+                let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is Map)` : '';
+                fromJsonLines.push(`    ${legalKey} = (json[${jsonKey}] != null${typeCheck}) ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
                 toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}.toJson();\n    }\n`);
               }
             }
             else {
-              let toType = '';
+              let toType = `json[${jsonKey}]`;
               let type = '';
               if (typeof element === 'boolean') {
                 //bool is special
@@ -340,21 +344,21 @@ $(function () {
                   element = element.toString();
                 }
                 if (typeof element === 'string') {
-                  toType = '?.toString()';
+                  toType = `json[${jsonKey}]?.toString()`;
                   type = 'String';
                 }
                 else if (typeof element === 'number') {
                   if (Number.isInteger(element)) {
-                    toType = '?.toInt()';
+                    toType = shouldEnhanceFaultTolerance ? `int.tryParse(json[${jsonKey}]?.toString() ?? '')` : `json[${jsonKey}]?.toInt()`;
                     type = 'int';
                   } else {
-                    toType = '?.toDouble()';
+                    toType = shouldEnhanceFaultTolerance ? `double.tryParse(json[${jsonKey}]?.toString() ?? '')` : `json[${jsonKey}]?.toDouble()`;
                     type = 'double';
                   }
                 }
               }
               propsLines.push(`  ${type} ${legalKey};\n`);
-              fromJsonLines.push(`    ${legalKey} = json[${jsonKey}]${toType};\n`);
+              fromJsonLines.push(`    ${legalKey} = ${toType};\n`);
               toJsonLines.push(`    data[${jsonKey}] = ${thisData}${legalKey};\n`);
             }
           }
@@ -436,6 +440,7 @@ $(function () {
     checkBoxBinding('jsonKeyPrivateCheckBox', true);
     checkBoxBinding('usingJsonKeyCheckBox', false);
     checkBoxBinding('camelCheckBox', true);
+    checkBoxBinding('faultToleranceCheckBox', false);
     checkBoxBinding('forceStringCheckBox', false);
 
     $('#usingJsonKeyCheckBox').on('change', function () {
