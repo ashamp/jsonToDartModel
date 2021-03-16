@@ -228,17 +228,17 @@ $(function () {
         }
 
         while (count) {
-          fromJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}var arr${count} = ${genericStringGenerator(innerClass, total - count)}();`);
+          fromJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}final arr${count} = ${genericStringGenerator(innerClass, total - count).slice(4)}[];`);
           fromJsonLines.push(`${makeBlank(count * 3)}arr${count - 1}.add(arr${count});\n${makeBlank(count * 2)}});`);
-          toJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}var arr${count} = List();`);
+          toJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}final arr${count} = [];`);
           toJsonLines.push(`${makeBlank(count * 3)}arr${count - 1}.add(arr${count});\n${makeBlank(count * 2)}});`);
           count--;
         }
 
         let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is List)` : '';
-        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null${typeCheck}) {\n${makeBlank(count * 2)}var v = json[${jsonKey}];\n${makeBlank(count * 2)}var arr0 = ${genericStringGenerator(innerClass, total)}();`);
+        fromJsonLines.unshift(`${makeBlank(count * 2)}if (json[${jsonKey}] != null${typeCheck}) {\n${makeBlank(count * 2)}final v = json[${jsonKey}];\n${makeBlank(count * 2)}final arr0 = ${genericStringGenerator(innerClass, total).slice(4)}[];`);
         fromJsonLines.push(`${makeBlank(count * 2)}${makeBlank(count)}${legalKey} = arr0;\n    }\n`);
-        toJsonLines.unshift(`    if (${legalKey} != null) {\n      var v = ${legalKey};\n      var arr0 = List();`);
+        toJsonLines.unshift(`    if (${legalKey} != null) {\n      final v = ${legalKey};\n      final arr0 = [];`);
         toJsonLines.push(`      data[${jsonKey}] = arr0;\n    }\n`);
 
         let fromJsonLinesJoined = fromJsonLines.join('\r\n');
