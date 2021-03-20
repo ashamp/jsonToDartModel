@@ -173,7 +173,7 @@ $(function () {
         return { inner, innerClass, count };
       };
       //!获取数组循环语句
-      let getIterateLines = (arr, className, key, legalKey, jsonKey) => {
+      let getIterateLines = (arr, className, key, legalKey, jsonKey, shouldNullSafe) => {
 
         if (legalKey == 'data') {
           legalKey = 'this.data';
@@ -200,7 +200,7 @@ $(function () {
 
         if (typeof inner === 'object') {
           fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${className}.fromJson(v));\n${makeBlank(count * 3)}});`);
-          toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v.toJson());\n${makeBlank(count * 3)}});`);
+          toJsonLines.push(`${makeBlank(count * 3)}v${shouldNullSafe ? '!' : ''}.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v${shouldNullSafe ? '!' : ''}.toJson());\n${makeBlank(count * 3)}});`);
         } else {
           let toType = 'v';
           if (typeof inner === 'boolean') {
@@ -223,14 +223,14 @@ $(function () {
           }
           if ((typeof inner === 'string') || (typeof inner === 'number') || (typeof inner === 'boolean')) {
             fromJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(${toType});\n${makeBlank(count * 3)}});`);
-            toJsonLines.push(`${makeBlank(count * 3)}v.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
+            toJsonLines.push(`${makeBlank(count * 3)}v${shouldNullSafe ? '!' : ''}.forEach((v) {\n${makeBlank(count * 4)}arr${count}.add(v);\n${makeBlank(count * 3)}});`);
           }
         }
 
         while (count) {
           fromJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}final arr${count} = ${genericStringGenerator(innerClass, total - count).slice(4)}[];`);
           fromJsonLines.push(`${makeBlank(count * 3)}arr${count - 1}.add(arr${count});\n${makeBlank(count * 2)}});`);
-          toJsonLines.unshift(`${makeBlank(count * 2)}v.forEach((v) {\n${makeBlank(count * 3)}final arr${count} = [];`);
+          toJsonLines.unshift(`${makeBlank(count * 2)}v${shouldNullSafe ? '!' : ''}.forEach((v) {\n${makeBlank(count * 3)}final arr${count} = [];`);
           toJsonLines.push(`${makeBlank(count * 3)}arr${count - 1}.add(arr${count});\n${makeBlank(count * 2)}});`);
           count--;
         }
@@ -263,6 +263,7 @@ $(function () {
         let toJsonLines = [];
 
         let shouldUsingJsonKey = $('#usingJsonKeyCheckBox').prop('checked');
+        let shouldNullSafe = $('#nullSafeCheckBox').prop('checked');
         let isJsonKeyPrivate = $('#jsonKeyPrivateCheckBox').prop('checked');
         let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
         let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
@@ -314,8 +315,11 @@ $(function () {
               }
               if (Array.isArray(element)) {
                 let { inner, innerClass, count } = getInnerObjInfo(element, subClassName);
-                let { fromJsonLinesJoined, toJsonLinesJoined } = getIterateLines(element, subClassName, key, legalKey, jsonKey);
+                let { fromJsonLinesJoined, toJsonLinesJoined } = getIterateLines(element, subClassName, key, legalKey, jsonKey, shouldNullSafe);
                 let genericString = genericStringGenerator(innerClass, count);
+                if (shouldNullSafe) {
+                  genericString = genericString.replaceAll('>', '?>') + '?';
+                }
                 propsLines.push(`  ${genericString} ${legalKey};\n`);
                 fromJsonLines.push(fromJsonLinesJoined);
                 toJsonLines.push(toJsonLinesJoined);
@@ -326,10 +330,10 @@ $(function () {
               else {
 
                 lines.unshift(objToDart(element, className, key));
-                propsLines.push(`  ${subClassName} ${legalKey};\n`);
+                propsLines.push(`  ${subClassName}${shouldNullSafe ? '?' : ''} ${legalKey};\n`);
                 let typeCheck = shouldEnhanceFaultTolerance ? ` && (json[${jsonKey}] is Map)` : '';
                 fromJsonLines.push(`    ${legalKey} = (json[${jsonKey}] != null${typeCheck}) ? ${subClassName}.fromJson(json[${jsonKey}]) : null;\n`);
-                toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}.toJson();\n    }\n`);
+                toJsonLines.push(`    if (${legalKey} != null) {\n      data[${jsonKey}] = ${thisData}${legalKey}${shouldNullSafe ? '!' : ''}.toJson();\n    }\n`);
               }
             }
             else {
@@ -357,7 +361,7 @@ $(function () {
                   }
                 }
               }
-              propsLines.push(`  ${type} ${legalKey};\n`);
+              propsLines.push(`  ${type}${shouldNullSafe ? '?' : ''} ${legalKey};\n`);
               fromJsonLines.push(`    ${legalKey} = ${toType};\n`);
               toJsonLines.push(`    data[${jsonKey}] = ${thisData}${legalKey};\n`);
             }
@@ -439,6 +443,7 @@ $(function () {
 
     checkBoxBinding('jsonKeyPrivateCheckBox', true);
     checkBoxBinding('usingJsonKeyCheckBox', false);
+    checkBoxBinding('nullSafeCheckBox', false);
     checkBoxBinding('camelCheckBox', true);
     checkBoxBinding('faultToleranceCheckBox', false);
     checkBoxBinding('forceStringCheckBox', false);
