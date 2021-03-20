@@ -6,9 +6,10 @@ click [https://ashamp.github.io/jsonToDartModel/](https://ashamp.github.io/jsonT
 
 ## Feature
 - online use, without plugin
-- surport multidimensional list
-- surport complex json
-- surport convert all props to String type
+- support null safe
+- support multidimensional list
+- support complex json
+- support convert all props to String type
 - empty props warning
 - single file
 - dart keyword protected
