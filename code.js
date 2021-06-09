@@ -268,6 +268,7 @@ $(function () {
         let isJsonKeyPrivate = $('#jsonKeyPrivateCheckBox').prop('checked');
         let shouldConvertSnakeToCamel = $('#camelCheckBox').prop('checked');
         let shouldEnhanceFaultTolerance = $('#faultToleranceCheckBox').prop('checked');
+        let shouldOridJson = $('#origJsonCheckBox').prop('checked');
 
         let className = `${prefix}${uppercaseFirst(baseClass)}`;
         if (shouldConvertSnakeToCamel) {
@@ -279,6 +280,9 @@ $(function () {
 
         constructorLines.push(`  ${className}({\n`);
         fromJsonLines.push(`  ${className}.fromJson(Map<String, dynamic> json) {\n`);
+        if (shouldOridJson) {
+          fromJsonLines.push(`    __origJson = json;\n`);
+        }
         toJsonLines.push(`  Map<String, dynamic> toJson() {\n`);
         toJsonLines.push(`    final Map<String, dynamic> data = Map<String, dynamic>();\n`);
 
@@ -368,6 +372,9 @@ $(function () {
             }
           }
         }
+        if (shouldOridJson) {
+          propsLines.push(`  Map<String, dynamic>? __origJson;\n`);
+        }
         if (shouldUsingJsonKey) {
           lines.unshift(jsonKeysLines.join('\n'));
         }
@@ -380,6 +387,9 @@ $(function () {
         lines.push(constructorLines.join(''));
         lines.push(fromJsonLines.join(''));
         lines.push(toJsonLines.join(''));
+        if (shouldOridJson) {
+          lines.push('  Map<String, dynamic>? get origJson => __origJson;');
+        }
 
         lines.push(`}\n`);
 
@@ -448,6 +458,7 @@ $(function () {
     checkBoxBinding('camelCheckBox', true);
     checkBoxBinding('faultToleranceCheckBox', false);
     checkBoxBinding('forceStringCheckBox', false);
+    checkBoxBinding('origJsonCheckBox', false);
 
     $('#usingJsonKeyCheckBox').on('change', function () {
       $('#jsonKeyPrivateCheckBox').prop('disabled', !(this.checked));
