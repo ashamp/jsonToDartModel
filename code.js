@@ -373,7 +373,7 @@ $(function () {
           }
         }
         if (shouldOridJson) {
-          propsLines.push(`  Map<String, dynamic>? __origJson;\n`);
+          propsLines.push(`  Map<String, dynamic> __origJson = {};\n`);
         }
         if (shouldUsingJsonKey) {
           lines.unshift(jsonKeysLines.join('\n'));
@@ -388,7 +388,7 @@ $(function () {
         lines.push(fromJsonLines.join(''));
         lines.push(toJsonLines.join(''));
         if (shouldOridJson) {
-          lines.push('  Map<String, dynamic>? get origJson => __origJson;');
+          lines.push(`  Map<String, dynamic> origJson() => __origJson;`);
         }
 
         lines.push(`}\n`);
