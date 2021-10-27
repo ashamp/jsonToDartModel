@@ -301,7 +301,7 @@ $(function () {
               thisData = 'this.';
             }
 
-            let jsonKey = `"${key}"`;
+            let jsonKey = `'${key}'`;
             if (shouldUsingJsonKey) {
               jsonKey = `${isJsonKeyPrivate ? '_' : ''}jsonKey${className}${uppercaseFirst(legalKey)}`;
             }
