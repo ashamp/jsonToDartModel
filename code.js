@@ -284,7 +284,7 @@ $(function () {
           fromJsonLines.push(`    __origJson = json;\n`);
         }
         toJsonLines.push(`  Map<String, dynamic> toJson() {\n`);
-        toJsonLines.push(`    final Map<String, dynamic> data = Map<String, dynamic>();\n`);
+        toJsonLines.push(`    final data = <String, dynamic>{};\n`);
 
         for (let key in jsonObj) {
           if (jsonObj.hasOwnProperty(key)) {
@@ -301,11 +301,11 @@ $(function () {
               thisData = 'this.';
             }
 
-            let jsonKey = `"${key}"`;
+            let jsonKey = `'${key}'`;
             if (shouldUsingJsonKey) {
               jsonKey = `${isJsonKeyPrivate ? '_' : ''}jsonKey${className}${uppercaseFirst(legalKey)}`;
             }
-            jsonKeysLines.push(`const String ${jsonKey} = "${key}";`);
+            jsonKeysLines.push(`const String ${jsonKey} = '${key}';`);
             constructorLines.push(`    this.${legalKey},\n`);
             if (element === null) {
               //!显示错误信息
